@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package vsearch;
+
+service VsearchService {
+  rpc Upsert (UpsertRequest) returns (UpsertResponse) {}  // データベースにベクトルを登録する
+  rpc Delete (DeleteRequest) returns (DeleteResponse) {}  // データベースからベクトルを削除する
+  rpc Search (SearchRequest) returns (SearchResponse) {}  // データベースからベクトルを検索する
+  rpc Train (TrainRequest) returns (TrainResponse) {}  // Faissを訓練する
+  rpc DeleteAll (DeleteAllRequest) returns (DeleteAllResponse) {}  // データベースからベクトルを全て削除する
+  rpc DbStats (DbStatsRequest) returns (DbStatsResponse) {}  // データベースの統計情報を取得する
+  rpc GetVectors (GetVectorsRequest) returns (GetVectorsResponse) {}  // データベースからベクトルを取得する
+}
+
+message Data {
+  string id = 1;  // データのID
+  repeated double values = 2;  // ベクトル
+  repeated string namespaces = 3;  // 登録先のnamespace
+}
+
+message UpsertRequest {
+  repeated Data data = 1;
+}
+
+message UpsertResponse {
+  int32 nstored = 1;
+  int32 nerror = 2;
+}
+
+message DeleteRequest {
+  repeated string ids = 1;  // データのID
+}
+
+message DeleteResponse {
+}
+
+message SearchRequest {
+  repeated double values = 1;  // ベクトル
+  int32 k = 2;  // 上位k個まで検索する
+  string namespace = 3;  // 検索対象のnamespace
+}
+
+message SearchResponse {
+  repeated string ids = 1;
+  repeated double distances = 2;
+}
+
+message TrainRequest {
+  double proportion = 1;  // 学習に使用するデータの割合
+  bool force = 2;  // 真の場合学習済みであっても再学習する
+}
+
+message TrainResponse {
+  bool success = 1;
+}
+
+message DeleteAllRequest {
+}
+
+message DeleteAllResponse {
+}
+
+message DbStatsRequest {
+}
+
+
+
+message FaissConfig {
+  string description = 1;
+	string metric = 2;
+	int32 nprobe = 3;
+	int32 dimension = 4;
+}
+
+message DbData {
+  string namespace = 1;
+  int32 ntotal = 2;  // 登録済みのデータ数
+  FaissConfig faissconfig = 3;
+}
+
+message DbStatsResponse {
+  bool istrained = 1;
+  int64 dimension = 2;
+  int32 status = 3;
+  repeated DbData dbs = 4;
+}
+
+message GetVectorsRequest {
+  repeated string ids = 1;
+  string namespace = 2;
+}
+
+message GetVectorsResponse {
+  message Data {
+    string id = 1;  // データのID
+    repeated double values = 2;  // ベクトル
+    string namespace = 3;  // 登録先のnamespace
+  }
+
+  repeated Data data = 1;
+}

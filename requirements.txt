@@ -1,0 +1,5 @@
+faiss-cpu==1.6.5
+grpcio==1.54.0
+grpcio-tools==1.54.0
+leveldb==0.201
+numpy==1.24.3
